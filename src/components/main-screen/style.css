@@ -3,15 +3,19 @@
     margin-bottom: 20px;
     margin-left: 40px;
     font-family: 'GloriaHallelujah';
-}
-
-.app-container {
-    margin-top: 20px;
+    text-align: center;
 }
 
 .add-activity-btn {
     font-size: 30px;
     outline: none;
+    float: right;
+    margin-top: 20px;
+}
+
+.app-container {
+    margin-top: 50px;
+    margin-bottom: 50px;
 }
 
 .activity-container {
@@ -42,4 +46,42 @@
 .activity-card {
     max-width: 300px;
     min-width: 300px;
+}
+
+.activity-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+}
+
+.activity-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 12px 15px;
+}
+
+.activity-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.activity-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.activity-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.activity-col {
+    height: 65vh;
+    overflow: auto;
 }
