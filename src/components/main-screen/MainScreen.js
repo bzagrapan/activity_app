@@ -1,20 +1,36 @@
-import { AnchorButton } from '@blueprintjs/core';
+import { AnchorButton, Slider } from '@blueprintjs/core';
 import _ from 'lodash';
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
+import { createMenuItemObject } from '../../utils/general';
+import ActivityTypeMenu from '../activity-type-menu/ActivityTypeMenu';
 import './style.css';
-import * as dayjs from 'dayjs';
 
 const MainScreen = (props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [activities, setActivities] = useState([]);
+    const [menuItems, setMenuItems] = useState([]);
     const [filters, setFilters] = useState({});
 
     const getNewActivity = () => {
         setIsLoading(true);
         getActivity()
             .then((activity) => {
+                if (menuItems.length !== 0) {
+                    let itemIndex = _.findIndex(menuItems, function (o) {
+                        return o.text === activity.type;
+                    });
+                    // -1 === NOT FOUND
+                    if (itemIndex === -1) {
+                        setMenuItems([
+                            ...menuItems,
+                            createMenuItemObject(activity.type, menuItemOnClick, activity.type),
+                        ]);
+                    }
+                } else {
+                    setMenuItems([createMenuItemObject(activity.type, menuItemOnClick, activity.type)]);
+                }
                 setActivities([...activities, activity]);
                 setIsLoading(false);
             })
@@ -23,10 +39,14 @@ const MainScreen = (props) => {
             });
     };
 
-    const displayActivities = () => {
-        return activities.map((activity) => {
+    const menuItemOnClick = (type) => {
+        console.log(type);
+    };
+
+    const renderActivities = () => {
+        return activities.map((activity, key) => {
             return (
-                <tr key={activity.key}>
+                <tr key={key}>
                     <td>{activity.createdAt}</td>
                     <td>{activity.type}</td>
                     <td>{activity.participants}</td>
@@ -52,7 +72,7 @@ const MainScreen = (props) => {
                 <Row>
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10}>
-                        Filters
+                        <ActivityTypeMenu menu_items={menuItems} />
                         <hr />
                     </Col>
                     <Col lg={1} md={1}></Col>
@@ -71,7 +91,7 @@ const MainScreen = (props) => {
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>{displayActivities()}</tbody>
+                            <tbody>{renderActivities()}</tbody>
                         </table>
                     </Col>
                     <Col lg={1} md={1}></Col>
