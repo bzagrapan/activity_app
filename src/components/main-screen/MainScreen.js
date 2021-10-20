@@ -1,5 +1,5 @@
-import { AnchorButton, Slider } from '@blueprintjs/core';
-import _ from 'lodash';
+import { AnchorButton, RangeSlider } from '@blueprintjs/core';
+import _, { filter } from 'lodash';
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
@@ -9,9 +9,16 @@ import './style.css';
 
 const MainScreen = (props) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [netErrorOccurred, setNetErrorOccurred] = useState(false);
     const [activities, setActivities] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
-    const [filters, setFilters] = useState({});
+    const [maxNumberOfParticipants, setMaxNumberOfParticipants] = useState(1);
+    const [maxPrice, setMaxPrice] = useState(0);
+    const [filters, setFilters] = useState({
+        activity_type: null,
+        participants: null,
+        price: null,
+    });
 
     const getNewActivity = () => {
         setIsLoading(true);
@@ -32,15 +39,29 @@ const MainScreen = (props) => {
                     setMenuItems([createMenuItemObject(activity.type, menuItemOnClick, activity.type)]);
                 }
                 setActivities([...activities, activity]);
+                if (maxNumberOfParticipants < activity.participants) {
+                    setMaxNumberOfParticipants(activity.participants);
+                }
                 setIsLoading(false);
+                setNetErrorOccurred(false);
             })
             .catch((e) => {
                 console.log(e);
+                setNetErrorOccurred(true);
+                setIsLoading(false);
             });
     };
 
     const menuItemOnClick = (type) => {
-        console.log(type);
+        let newFilters = _.cloneDeep(filters);
+        newFilters.activity_type = type;
+        setFilters(newFilters);
+    };
+
+    const onParticipantsFilterChange = (range) => {
+        let newFilters = _.cloneDeep(filters);
+        newFilters.participants = range;
+        setFilters(newFilters);
     };
 
     const renderActivities = () => {
@@ -58,6 +79,7 @@ const MainScreen = (props) => {
         });
     };
 
+    console.log(filters);
     return (
         <div>
             <Container fluid className="app-container">
@@ -73,6 +95,16 @@ const MainScreen = (props) => {
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10}>
                         <ActivityTypeMenu menu_items={menuItems} />
+                        <span className="participants-label">Number of participants:</span>
+                        <RangeSlider
+                            min={1}
+                            max={maxNumberOfParticipants}
+                            stepSize={1}
+                            disabled={activities.length > 0 || maxNumberOfParticipants === 1 ? false : true}
+                            className="slider"
+                            value={filters.participants ? filters.participants : [1, maxNumberOfParticipants]}
+                            onRelease={(range) => onParticipantsFilterChange(range)}
+                        />
                         <hr />
                     </Col>
                     <Col lg={1} md={1}></Col>
@@ -99,14 +131,19 @@ const MainScreen = (props) => {
                 <Row>
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10}>
-                        <AnchorButton
-                            loading={isLoading}
-                            disabled={isLoading}
-                            text="Add activity"
-                            onClick={getNewActivity}
-                            intent="primary"
-                            className="add-activity-btn"
-                        />
+                        <div className="add-activity-btn-container">
+                            <AnchorButton
+                                loading={isLoading}
+                                disabled={isLoading}
+                                text="Add activity"
+                                onClick={getNewActivity}
+                                intent="primary"
+                                className="add-activity-btn"
+                            />
+                            {netErrorOccurred ? (
+                                <div className="error-label">Network error occurred, please try again.</div>
+                            ) : null}
+                        </div>
                     </Col>
                     <Col lg={1} md={1}></Col>
                 </Row>
