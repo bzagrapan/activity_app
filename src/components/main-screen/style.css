@@ -1,0 +1,45 @@
+.app-header {
+    font-size: 60px;
+    margin-bottom: 20px;
+    margin-left: 40px;
+    font-family: 'GloriaHallelujah';
+}
+
+.app-container {
+    margin-top: 20px;
+}
+
+.add-activity-btn {
+    font-size: 30px;
+    outline: none;
+}
+
+.activity-container {
+    display: inline-block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 15vw;
+    margin-right: 15vw;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.control-bar {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 30px;
+}
+
+.activity-detail-row {
+    margin-bottom: 10px;
+}
+
+.activity-card {
+    max-width: 300px;
+    min-width: 300px;
+}
