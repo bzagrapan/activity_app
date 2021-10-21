@@ -1,5 +1,5 @@
-import { AnchorButton, RangeSlider } from '@blueprintjs/core';
-import _, { filter } from 'lodash';
+import { AnchorButton, ControlGroup, FormGroup, NumericInput } from '@blueprintjs/core';
+import _ from 'lodash';
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
@@ -12,12 +12,10 @@ const MainScreen = (props) => {
     const [netErrorOccurred, setNetErrorOccurred] = useState(false);
     const [activities, setActivities] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
-    const [maxNumberOfParticipants, setMaxNumberOfParticipants] = useState(1);
-    const [maxPrice, setMaxPrice] = useState(0);
     const [filters, setFilters] = useState({
-        activity_type: null,
-        participants: null,
-        price: null,
+        activity_type: '',
+        participants: { min: '', max: '' },
+        price: { min: '', max: '' },
     });
 
     const getNewActivity = () => {
@@ -39,9 +37,6 @@ const MainScreen = (props) => {
                     setMenuItems([createMenuItemObject(activity.type, menuItemOnClick, activity.type)]);
                 }
                 setActivities([...activities, activity]);
-                if (maxNumberOfParticipants < activity.participants) {
-                    setMaxNumberOfParticipants(activity.participants);
-                }
                 setIsLoading(false);
                 setNetErrorOccurred(false);
             })
@@ -58,10 +53,36 @@ const MainScreen = (props) => {
         setFilters(newFilters);
     };
 
-    const onParticipantsFilterChange = (range) => {
+    const onParticipantsFilterChange = (valueAsString, isMin) => {
         let newFilters = _.cloneDeep(filters);
-        newFilters.participants = range;
+        if (isMin) {
+            newFilters.participants.min = valueAsString;
+        } else {
+            newFilters.participants.max = valueAsString;
+        }
         setFilters(newFilters);
+    };
+
+    const onPriceFilterChange = (valueAsString, isMin) => {
+        let newFilters = _.cloneDeep(filters);
+        if (isMin) {
+            newFilters.price.min = valueAsString;
+        } else {
+            newFilters.price.max = valueAsString;
+        }
+        setFilters(newFilters);
+    };
+
+    const onFilterReset = () => {
+        setFilters({
+            activity_type: '',
+            participants: { min: '', max: '' },
+            price: { min: '', max: '' },
+        });
+    };
+
+    const onFilterApply = () => {
+        console.log('brekeke');
     };
 
     const renderActivities = () => {
@@ -94,16 +115,76 @@ const MainScreen = (props) => {
                 <Row>
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10}>
-                        <ActivityTypeMenu menu_items={menuItems} />
-                        <span className="participants-label">Number of participants:</span>
-                        <RangeSlider
-                            min={1}
-                            max={maxNumberOfParticipants}
-                            stepSize={1}
-                            disabled={activities.length > 0 || maxNumberOfParticipants === 1 ? false : true}
-                            className="slider"
-                            value={filters.participants ? filters.participants : [1, maxNumberOfParticipants]}
-                            onRelease={(range) => onParticipantsFilterChange(range)}
+                        <ActivityTypeMenu menu_items={menuItems} menu_text={filters.activity_type} />
+                        <div className="filter-container">
+                            <FormGroup inline={true} label="Number of participants:" className="custom-form-group">
+                                <ControlGroup>
+                                    <NumericInput
+                                        placeholder="Minimal value"
+                                        allowNumericCharactersOnly
+                                        onValueChange={(valueAsNumber, valueAsString) =>
+                                            onParticipantsFilterChange(valueAsString, true)
+                                        }
+                                        stepSize={1}
+                                        value={filters.participants.min}
+                                        disabled={activities.length === 0 ? true : false}
+                                    />
+                                    <NumericInput
+                                        placeholder="Maximal value"
+                                        allowNumericCharactersOnly
+                                        onValueChange={(valueAsNumber, valueAsString) =>
+                                            onParticipantsFilterChange(valueAsString, false)
+                                        }
+                                        stepSize={1}
+                                        value={filters.participants.max}
+                                        disabled={activities.length === 0 ? true : false}
+                                    />
+                                </ControlGroup>
+                            </FormGroup>
+                        </div>
+                        <div className="filter-container">
+                            <FormGroup inline={true} label="Price:" className="custom-form-group">
+                                <ControlGroup>
+                                    <NumericInput
+                                        placeholder="Minimal value"
+                                        allowNumericCharactersOnly
+                                        onValueChange={(valueAsNumber, valueAsString) =>
+                                            onPriceFilterChange(valueAsString, true)
+                                        }
+                                        stepSize={0.05}
+                                        minorStepSize={0.01}
+                                        value={filters.price.min}
+                                        disabled={activities.length === 0 ? true : false}
+                                    />
+                                    <NumericInput
+                                        placeholder="Maximal value"
+                                        allowNumericCharactersOnly
+                                        onValueChange={(valueAsNumber, valueAsString) =>
+                                            onPriceFilterChange(valueAsString, false)
+                                        }
+                                        stepSize={0.05}
+                                        minorStepSize={0.01}
+                                        value={filters.price.max}
+                                        disabled={activities.length === 0 ? true : false}
+                                    />
+                                </ControlGroup>
+                            </FormGroup>
+                        </div>
+                        <AnchorButton
+                            className="submit-filter-btn"
+                            intent="primary"
+                            text="Filter"
+                            icon="search"
+                            onClick={onFilterApply}
+                            disabled={activities.length === 0 ? true : false}
+                        />
+                        <AnchorButton
+                            className="clear-btn"
+                            intent="danger"
+                            text="Reset"
+                            icon="cross"
+                            onClick={onFilterReset}
+                            disabled={activities.length === 0 ? true : false}
                         />
                         <hr />
                     </Col>

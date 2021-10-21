@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './style.css';
 import { Menu, PopoverInteractionKind, Button, MenuItem } from '@blueprintjs/core';
 import { Popover2 } from '@blueprintjs/popover2';
+import { isStringEmpty } from '../../utils/general';
 
 /* This component expects items array as a prop.
    It should look like this:
@@ -41,10 +42,11 @@ const ActivityTypeMenu = (props) => {
             fill={fill}
         >
             <Button
-                text={menu_text ? menu_text : 'Select activity type'}
+                text={isStringEmpty(menu_text) ? 'Select activity type' : menu_text}
                 intent="primary"
                 disabled={menu_items.length > 0 ? false : true}
                 icon="caret-down"
+                className="activity-dropdown-btn"
             />
         </Popover2>
     );
