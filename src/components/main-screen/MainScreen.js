@@ -4,7 +4,7 @@ import _, { filter } from 'lodash';
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
-import { createMenuItemObject, isStringEmpty } from '../../utils/general';
+import { createMenuItemObject, isStringEmpty, isActivityOkByFilters } from '../../utils/general';
 import ActivityTypeMenu from '../activity-type-menu/ActivityTypeMenu';
 import './style.css';
 
@@ -43,7 +43,7 @@ const MainScreen = (props) => {
                 setActivities([...activities, activity]);
 
                 if (filters.isFilterApplied) {
-                    if (isActivityOkByFilters(activity)) {
+                    if (isActivityOkByFilters(activity, filters)) {
                         setActivitiesToDisplay([...activitiesToDisplay, activity]);
                     }
                 } else {
@@ -113,7 +113,7 @@ const MainScreen = (props) => {
     const onFilterApply = () => {
         let displayedActivities = [];
         _.forEach(activities, (activity) => {
-            if (isActivityOkByFilters(activity)) {
+            if (isActivityOkByFilters(activity, filters)) {
                 displayedActivities.push(activity);
             }
         });
@@ -123,34 +123,6 @@ const MainScreen = (props) => {
         let newFilter = _.cloneDeep(filters);
         newFilter.isFilterApplied = true;
         setFilters(newFilter);
-    };
-
-    const isActivityOkByFilters = (activity) => {
-        let isTypeOk = true;
-        let isPriceOk = true;
-        let areParticipantsOk = true;
-
-        if (!isStringEmpty(filters.activity_type) && filters.activity_type !== activity.type) {
-            isTypeOk = false;
-        }
-
-        if (!isStringEmpty(filters.price.min) && activity.price < parseFloat(filters.price.min)) {
-            isPriceOk = false;
-        }
-
-        if (!isStringEmpty(filters.price.max) && activity.price > parseFloat(filters.price.max)) {
-            isPriceOk = false;
-        }
-
-        if (!isStringEmpty(filters.participants.min) && activity.participants < parseFloat(filters.participants.min)) {
-            areParticipantsOk = false;
-        }
-
-        if (!isStringEmpty(filters.participants.max) && activity.participants > parseFloat(filters.participants.max)) {
-            areParticipantsOk = false;
-        }
-
-        return isTypeOk && isPriceOk && areParticipantsOk ? true : false;
     };
 
     const deleteActivity = (activity_id) => {
