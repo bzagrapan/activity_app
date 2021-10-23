@@ -323,6 +323,7 @@ const MainScreen = (props) => {
                                 onClick={getNewActivity}
                                 intent="primary"
                                 className="add-activity-btn"
+                                icon="add"
                             />
                             {netErrorOccurred ? (
                                 <div className="error-label">Network error occurred, please try again.</div>
