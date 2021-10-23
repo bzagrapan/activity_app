@@ -1,4 +1,5 @@
-import { AnchorButton, ControlGroup, FormGroup, NumericInput } from '@blueprintjs/core';
+import { AnchorButton, ControlGroup, FormGroup, Icon, NumericInput } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 import _, { filter } from 'lodash';
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
@@ -152,6 +153,18 @@ const MainScreen = (props) => {
         return isTypeOk && isPriceOk && areParticipantsOk ? true : false;
     };
 
+    const deleteActivity = (activity_id) => {
+        let newActivities = _.filter(activities, function (o) {
+            return o.id !== activity_id;
+        });
+        setActivities(newActivities);
+
+        let newActivitiesToDisplay = _.filter(activitiesToDisplay, function (n) {
+            return n.id !== activity_id;
+        });
+        setActivitiesToDisplay(newActivitiesToDisplay);
+    };
+
     const renderActivities = () => {
         return activitiesToDisplay.map((activity, key) => {
             return (
@@ -161,7 +174,16 @@ const MainScreen = (props) => {
                     <td>{activity.participants}</td>
                     <td>{activity.price}</td>
                     <td>{activity.activity}</td>
-                    <td>DELETE ICON</td>
+                    <td>
+                        <Tooltip2 content={`Delete action created at ${activity.createdAt}`} intent="danger">
+                            <Icon
+                                intent="danger"
+                                icon="trash"
+                                className="trash-icon"
+                                onClick={() => deleteActivity(activity.id)}
+                            />
+                        </Tooltip2>
+                    </td>
                 </tr>
             );
         });
@@ -253,7 +275,7 @@ const MainScreen = (props) => {
                 </Row>
                 {!isStringEmpty(formHelperText) ? (
                     <Row justify="center">
-                        <div class="helper-text">{formHelperText}</div>
+                        <div className="helper-text">{formHelperText}</div>
                     </Row>
                 ) : null}
                 <Row>

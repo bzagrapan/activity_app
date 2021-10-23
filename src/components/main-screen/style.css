@@ -143,3 +143,7 @@
 .helper-text {
     color: red;
 }
+
+.trash-icon {
+    cursor: pointer;
+}
