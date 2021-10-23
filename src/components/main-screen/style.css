@@ -11,6 +11,19 @@
     float: right;
 }
 
+.total-items-container {
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.total-items-table {
+    text-align: left;
+}
+
+.total-items-table th {
+    padding-right: 20px;
+}
+
 .add-activity-btn {
     font-size: 30px;
     outline: none;

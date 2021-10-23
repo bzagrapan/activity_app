@@ -1,9 +1,9 @@
 import { AnchorButton, ControlGroup, FormGroup, NumericInput } from '@blueprintjs/core';
-import _ from 'lodash';
-import React, { useState } from 'react';
+import _, { filter } from 'lodash';
+import React, { useState, useRef } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
-import { createMenuItemObject } from '../../utils/general';
+import { createMenuItemObject, isStringEmpty } from '../../utils/general';
 import ActivityTypeMenu from '../activity-type-menu/ActivityTypeMenu';
 import './style.css';
 
@@ -11,11 +11,13 @@ const MainScreen = (props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [netErrorOccurred, setNetErrorOccurred] = useState(false);
     const [activities, setActivities] = useState([]);
+    const [activitiesToDisplay, setActivitiesToDisplay] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
     const [filters, setFilters] = useState({
         activity_type: '',
         participants: { min: '', max: '' },
         price: { min: '', max: '' },
+        isFilterApplied: false,
     });
 
     const getNewActivity = () => {
@@ -37,6 +39,15 @@ const MainScreen = (props) => {
                     setMenuItems([createMenuItemObject(activity.type, menuItemOnClick, activity.type)]);
                 }
                 setActivities([...activities, activity]);
+
+                if (filters.isFilterApplied) {
+                    if (isActivityOkByFilters(activity)) {
+                        setActivitiesToDisplay([...activitiesToDisplay, activity]);
+                    }
+                } else {
+                    setActivitiesToDisplay([...activitiesToDisplay, activity]);
+                }
+
                 setIsLoading(false);
                 setNetErrorOccurred(false);
             })
@@ -78,15 +89,56 @@ const MainScreen = (props) => {
             activity_type: '',
             participants: { min: '', max: '' },
             price: { min: '', max: '' },
+            isFilterApplied: false,
         });
+        setActivitiesToDisplay(activities);
     };
 
     const onFilterApply = () => {
-        console.log('brekeke');
+        let displayedActivities = [];
+        _.forEach(activities, (activity) => {
+            if (isActivityOkByFilters(activity)) {
+                displayedActivities.push(activity);
+            }
+        });
+
+        setActivitiesToDisplay(displayedActivities);
+
+        let newFilter = _.cloneDeep(filters);
+        newFilter.isFilterApplied = true;
+        setFilters(newFilter);
+    };
+
+    const isActivityOkByFilters = (activity) => {
+        let isTypeOk = true;
+        let isPriceOk = true;
+        let areParticipantsOk = true;
+
+        if (!isStringEmpty(filters.activity_type) && filters.activity_type !== activity.type) {
+            isTypeOk = false;
+        }
+
+        if (!isStringEmpty(filters.price.min) && activity.price < parseFloat(filters.price.min)) {
+            isPriceOk = false;
+        }
+
+        if (!isStringEmpty(filters.price.max) && activity.price > parseFloat(filters.price.max)) {
+            isPriceOk = false;
+        }
+
+        if (!isStringEmpty(filters.participants.min) && activity.participants < parseInt(filters.participants.min)) {
+            areParticipantsOk = false;
+        }
+
+        if (!isStringEmpty(filters.participants.max) && activity.participants > parseInt(filters.participants.max)) {
+            areParticipantsOk = false;
+        }
+
+        return isTypeOk && isPriceOk && areParticipantsOk ? true : false;
     };
 
     const renderActivities = () => {
-        return activities.map((activity, key) => {
+        return activitiesToDisplay.map((activity, key) => {
             return (
                 <tr key={key}>
                     <td>{activity.createdAt}</td>
@@ -100,7 +152,6 @@ const MainScreen = (props) => {
         });
     };
 
-    console.log(filters);
     return (
         <div>
             <Container fluid className="app-container">
@@ -212,6 +263,20 @@ const MainScreen = (props) => {
                 <Row>
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10}>
+                        <div className="total-items-container">
+                            <table className="total-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Total activities:</th>
+                                        <td>{`${activities.length}`}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Displayed activities:</th>
+                                        <td>{`${activitiesToDisplay.length}`}</td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                         <div className="add-activity-btn-container">
                             <AnchorButton
                                 loading={isLoading}
