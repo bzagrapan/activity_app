@@ -1,6 +1,6 @@
 import { AnchorButton, ControlGroup, FormGroup, NumericInput } from '@blueprintjs/core';
 import _, { filter } from 'lodash';
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-grid-system';
 import { getActivity } from '../../utils/API';
 import { createMenuItemObject, isStringEmpty } from '../../utils/general';
@@ -59,9 +59,11 @@ const MainScreen = (props) => {
     };
 
     const menuItemOnClick = (type) => {
-        let newFilters = _.cloneDeep(filters);
-        newFilters.activity_type = type;
-        setFilters(newFilters);
+        setFilters((currentFilters) => {
+            let newFilters = _.cloneDeep(currentFilters);
+            newFilters.activity_type = type;
+            return newFilters;
+        });
     };
 
     const onParticipantsFilterChange = (valueAsString, isMin) => {
@@ -152,6 +154,7 @@ const MainScreen = (props) => {
         });
     };
 
+    console.log(filters);
     return (
         <div>
             <Container fluid className="app-container">
