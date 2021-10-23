@@ -254,19 +254,26 @@ const MainScreen = (props) => {
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10} className="activity-col">
                         <hr />
-                        <table className="activity-table">
-                            <thead>
-                                <tr>
-                                    <th>Created at</th>
-                                    <th>Type</th>
-                                    <th>Participants</th>
-                                    <th>Price</th>
-                                    <th>Activity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>{renderActivities()}</tbody>
-                        </table>
+                        {activitiesToDisplay.length === 0 ? (
+                            <div className="no-activities-box">
+                                Please, add new activity by clicking on 'Add activity' button, or Reset your filter,
+                                because no activity correspond with your selection.
+                            </div>
+                        ) : (
+                            <table className="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Created at</th>
+                                        <th>Type</th>
+                                        <th>Participants</th>
+                                        <th>Price</th>
+                                        <th>Activity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>{renderActivities()}</tbody>
+                            </table>
+                        )}
                     </Col>
                     <Col lg={1} md={1}></Col>
                 </Row>
