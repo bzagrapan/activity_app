@@ -139,3 +139,7 @@
     float: right;
     margin-top: 15px;
 }
+
+.helper-text {
+    color: red;
+}

@@ -19,6 +19,7 @@ const MainScreen = (props) => {
         price: { min: '', max: '' },
         isFilterApplied: false,
     });
+    const [formHelperText, setFormHelperText] = useState('');
 
     const getNewActivity = () => {
         setIsLoading(true);
@@ -67,23 +68,35 @@ const MainScreen = (props) => {
     };
 
     const onParticipantsFilterChange = (valueAsString, isMin) => {
-        let newFilters = _.cloneDeep(filters);
-        if (isMin) {
-            newFilters.participants.min = valueAsString;
+        let parsedValue = parseFloat(valueAsString);
+        if (typeof parsedValue === NaN || parsedValue < 0 || valueAsString === '-') {
+            setFormHelperText('Please, write only valid positive numbers into filters.');
         } else {
-            newFilters.participants.max = valueAsString;
+            let newFilters = _.cloneDeep(filters);
+            if (isMin) {
+                newFilters.participants.min = valueAsString;
+            } else {
+                newFilters.participants.max = valueAsString;
+            }
+            setFilters(newFilters);
+            setFormHelperText('');
         }
-        setFilters(newFilters);
     };
 
     const onPriceFilterChange = (valueAsString, isMin) => {
-        let newFilters = _.cloneDeep(filters);
-        if (isMin) {
-            newFilters.price.min = valueAsString;
+        let parsedValue = parseFloat(valueAsString);
+        if (typeof parsedValue === NaN || parsedValue < 0 || valueAsString === '-') {
+            setFormHelperText('Please, write only valid positive numbers into filters.');
         } else {
-            newFilters.price.max = valueAsString;
+            let newFilters = _.cloneDeep(filters);
+            if (isMin) {
+                newFilters.price.min = valueAsString;
+            } else {
+                newFilters.price.max = valueAsString;
+            }
+            setFilters(newFilters);
+            setFormHelperText('');
         }
-        setFilters(newFilters);
     };
 
     const onFilterReset = () => {
@@ -128,11 +141,11 @@ const MainScreen = (props) => {
             isPriceOk = false;
         }
 
-        if (!isStringEmpty(filters.participants.min) && activity.participants < parseInt(filters.participants.min)) {
+        if (!isStringEmpty(filters.participants.min) && activity.participants < parseFloat(filters.participants.min)) {
             areParticipantsOk = false;
         }
 
-        if (!isStringEmpty(filters.participants.max) && activity.participants > parseInt(filters.participants.max)) {
+        if (!isStringEmpty(filters.participants.max) && activity.participants > parseFloat(filters.participants.max)) {
             areParticipantsOk = false;
         }
 
@@ -154,7 +167,6 @@ const MainScreen = (props) => {
         });
     };
 
-    console.log(filters);
     return (
         <div>
             <Container fluid className="app-container">
@@ -175,7 +187,6 @@ const MainScreen = (props) => {
                                 <ControlGroup>
                                     <NumericInput
                                         placeholder="Minimal value"
-                                        allowNumericCharactersOnly
                                         onValueChange={(valueAsNumber, valueAsString) =>
                                             onParticipantsFilterChange(valueAsString, true)
                                         }
@@ -185,7 +196,6 @@ const MainScreen = (props) => {
                                     />
                                     <NumericInput
                                         placeholder="Maximal value"
-                                        allowNumericCharactersOnly
                                         onValueChange={(valueAsNumber, valueAsString) =>
                                             onParticipantsFilterChange(valueAsString, false)
                                         }
@@ -201,7 +211,6 @@ const MainScreen = (props) => {
                                 <ControlGroup>
                                     <NumericInput
                                         placeholder="Minimal value"
-                                        allowNumericCharactersOnly
                                         onValueChange={(valueAsNumber, valueAsString) =>
                                             onPriceFilterChange(valueAsString, true)
                                         }
@@ -212,7 +221,6 @@ const MainScreen = (props) => {
                                     />
                                     <NumericInput
                                         placeholder="Maximal value"
-                                        allowNumericCharactersOnly
                                         onValueChange={(valueAsNumber, valueAsString) =>
                                             onPriceFilterChange(valueAsString, false)
                                         }
@@ -240,13 +248,18 @@ const MainScreen = (props) => {
                             onClick={onFilterReset}
                             disabled={activities.length === 0 ? true : false}
                         />
-                        <hr />
                     </Col>
                     <Col lg={1} md={1}></Col>
                 </Row>
+                {!isStringEmpty(formHelperText) ? (
+                    <Row justify="center">
+                        <div class="helper-text">{formHelperText}</div>
+                    </Row>
+                ) : null}
                 <Row>
                     <Col lg={1} md={1}></Col>
                     <Col lg={10} md={10} className="activity-col">
+                        <hr />
                         <table className="activity-table">
                             <thead>
                                 <tr>
